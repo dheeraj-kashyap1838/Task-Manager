@@ -1,16 +1,16 @@
 "use client";
 
-import { Field, FieldError, FieldGroup, FieldLabel } from "../../components/ui/field";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 
 import supabase from "../../lib/supabase";
 
 const formSchema = z.object({
-  title: z
+  name: z
     .string()
-    .min(5, "Name must be at least 5 characters.")
+    .min(3, "Name must be at least 3 characters.")
     .max(32, "Name must be at most 32 characters."),
   email: z
     .string()
@@ -27,42 +27,122 @@ const formSchema = z.object({
     .regex(/[^A-Za-z0-9]/, "Must contain at least one special character"),
 });
 
-function page() {
-  const form = useForm({
+export default function SignUpPage() {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      name: "",
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values) {
+  const onSubmit = async (values) => {
     const { name, email, password } = values;
 
     const { data, error } = await supabase.auth.signUp({
-      name,
       email,
       password,
+      options: { data: { name } },
     });
 
     if (error) {
       console.error("Signup error:", error.message);
+      alert(error.message);
       return;
     }
-    if (!error){
-      alert("sign up succesfully")
-    }
 
-    console.log("User created:", data.user);
-    form.reset();
-  }
+    alert("Signup successful. Check your email to confirm your account.");
+    reset();
+    router.push("/dashboard");
+  };
 
   return (
-    <section className="max-w-5xl w-full mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Sign Up</h1>
+    <section className="min-h-screen bg-background text-foreground flex items-center justify-center py-14 px-4">
+      <div className="w-full max-w-6xl grid gap-8 md:grid-cols-2 items-center">
+        <div className="rounded-3xl border border-border bg-card p-10 shadow-xl">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            Capture, organize, and tackle your to-dos from anywhere.
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+            Escape the clutter and chaos—unleash your productivity with Taskflow.
+            Keep your team in sync and track progress effortlessly.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-2 text-sm text-muted-foreground">
+            <span className="rounded-full bg-primary/10 px-3 py-1">Team-ready</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1">Secure auth</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1">Responsive UI</span>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-8 shadow-xl">
+          <h2 className="text-2xl font-bold text-foreground mb-5">Create your account</h2>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">
+                Full Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                {...register("name")}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                placeholder="Jane Doe"
+              />
+              {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                {...register("email")}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                placeholder="you@example.com"
+              />
+              {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                {...register("password")}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                placeholder="••••••••"
+              />
+              {errors.password && <p className="mt-1 text-xs text-destructive">{errors.password.message}</p>}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-lg bg-accent px-4 py-3 text-base font-semibold text-white hover:bg-accent/90 transition"
+            >
+              {isSubmitting ? "Creating account..." : "Sign up"}
+            </button>
+          </form>
+
+          <p className="mt-4 text-sm text-muted-foreground">
+            Already have an account? <a href="/login" className="text-accent hover:underline">Sign in</a>
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
 
-export default page;
