@@ -5,6 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
 export const createClient = () =>
+  console.log('first', supabaseUrl, supabaseKey)
   createBrowserClient(
     supabaseUrl!,
     supabaseKey!,

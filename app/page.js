@@ -9,7 +9,11 @@ import Footer from "@/components/Footer/Footer";
 export default async function Page() {
   const supabase = await createClient();
 
-  const { data: todos } = await supabase.from("todos").select();
+  const { data: todos, error } = await supabase.from("todos").select("*");
+
+  if (error) {
+    console.error("Todos fetch error:", error.message);
+  }
 
   return (
     <div className="min-h-screen bg-background">

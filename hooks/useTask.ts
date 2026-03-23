@@ -8,14 +8,26 @@ export const useTasks = () => {
   const fetchTasks = async () => {
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser();
+
+    if (userError) {
+      console.error("Supabase getUser error:", userError.message);
+      return;
+    }
 
     if (!user) return;
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("tasks")
       .select("*")
       .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Supabase tasks.select error:", error.message);
+      setTasks([]);
+      return;
+    }
 
     setTasks(data || []);
   };

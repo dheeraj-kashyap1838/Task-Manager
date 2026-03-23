@@ -45,22 +45,31 @@ export default function SignUpPage() {
 
   const onSubmit = async (values) => {
     const { name, email, password } = values;
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
+      });
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name } },
-    });
+      if (error) {
+        console.error("Signup error:", error.message);
+        alert(`Signup error: ${error.message}`);
+        return;
+      }
 
-    if (error) {
-      console.error("Signup error:", error.message);
-      alert(error.message);
-      return;
+      if (!data) {
+        throw new Error("Signup returned no data; check network or Supabase config.");
+      }
+
+      alert("Signup successful. Check your email to confirm your account.");
+      reset();
+      router.push("/dashboard");
+    } catch (fetchError) {
+      const msg = fetchError instanceof Error ? fetchError.message : String(fetchError);
+      console.error("Signup exception:", msg);
+      alert(`Signup failed: ${msg}. Verify network + Supabase URL/key`);
     }
-
-    alert("Signup successful. Check your email to confirm your account.");
-    reset();
-    router.push("/dashboard");
   };
 
   return (
