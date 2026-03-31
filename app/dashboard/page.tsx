@@ -6,13 +6,11 @@ import { useTasks } from "../../hooks/useTask";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import supabase from "@/lib/supabase";
-import TaskItem from "@/components/ui/taskItem";
 
 export default function Dashboard() {
   const { tasks, toggleTask, deleteTask } = useTasks();
   const router = useRouter();
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
-  // console.log('tasks', TaskList)
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getSession();
@@ -112,20 +110,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className="space-y-3">
-                        {column.tasks.length > 0 ? (
-                          <>
-                            {tasks.map((task) => (
-                              <TaskItem
-                                key={task.id}
-                                task={task}
-                                toggleTask={toggleTask}
-                                deleteTask={deleteTask}
-                              />
-                            ))}
-                          </>
-                        ) : (
-                          <div className="text-xs text-slate-300 p-3 rounded-lg border border-dashed border-white/15">No tasks yet.</div>
-                        )}
+                        <TaskList />
                       </div>
                     </section>
                   ))}

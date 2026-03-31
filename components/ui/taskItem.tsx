@@ -1,4 +1,6 @@
+"use client"
 import { Task } from "@/types/task"
+
 
 interface Props {
   task: Task
@@ -15,14 +17,13 @@ export default function TaskItem({
     <div className="group flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 p-3 rounded-xl transition-all duration-200 shadow-sm">
       <div className="flex items-center gap-3 flex-1 overflow-hidden">
         <button
-          onClick={() => toggleTask(task.id, task.completed)}
-          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-            task.completed
-              ? "bg-green-500 border-green-500"
-              : "border-white/30 hover:border-white/50"
-          }`}
+          onClick={() => toggleTask(task.id, task.is_completed)}
+          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${task.is_completed
+            ? "bg-green-500 border-green-500"
+            : "border-white/30 hover:border-white/50"
+            }`}
         >
-          {task.completed && (
+          {task.is_completed && (
             <svg
               className="w-3.5 h-3.5 text-white"
               fill="none"
@@ -39,11 +40,10 @@ export default function TaskItem({
           )}
         </button>
         <span
-          className={`text-sm transition-all truncate pr-2 ${
-            task.completed ? "text-slate-500 line-through" : "text-slate-100"
-          }`}
+          className={`text-sm transition-all  pr-2 ${task.is_completed ? "text-slate-500 line-through" : "text-slate-100"
+            }`}
         >
-          {task.title}
+          {task.task}
         </span>
       </div>
 

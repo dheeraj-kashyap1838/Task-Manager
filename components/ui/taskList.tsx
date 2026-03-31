@@ -1,19 +1,21 @@
-import { Task } from "@/types/task"
+"use client"
 import TaskItem from "./taskItem"
+import { useTasks } from "@/hooks/useTask"
 
-interface Props {
-  tasks: Task[]
-  toggleTask: (id: string, completed: boolean) => void
-  deleteTask: (id: string) => void
-}
 
-export default function TaskList({
-  tasks,
-  toggleTask,
-  deleteTask
-}: Props) {
+export default function TaskList() {
+  const { tasks, toggleTask, deleteTask } = useTasks();
+  console.log(tasks)
+  if (!tasks || tasks.length === 0) {
+    return (
+      <div className="text-xs text-slate-400 p-4 rounded-xl border border-dashed border-white/10 text-center">
+        No tasks yet.
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="space-y-3">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}
@@ -23,5 +25,5 @@ export default function TaskList({
         />
       ))}
     </div>
-  )
+  );
 }

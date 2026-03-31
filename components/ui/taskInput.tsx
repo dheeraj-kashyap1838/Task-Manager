@@ -6,7 +6,6 @@ export default function TaskInput() {
   const { addTask, } = useTasks();
 
   const [task, setTask] = useState("")
-
   const handleSubmit = async () => {
     if (!task) return
 
