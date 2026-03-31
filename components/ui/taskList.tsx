@@ -13,7 +13,7 @@ export default function TaskList({
   deleteTask
 }: Props) {
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}
