@@ -4,4 +4,5 @@ export interface Task {
   is_completed: boolean;
   user_id?: string;
   created_at?: string;
+  column_id?: string;
 }

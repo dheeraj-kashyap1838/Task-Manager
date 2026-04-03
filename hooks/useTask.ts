@@ -7,7 +7,7 @@ export const useTasks = () => {
 
   //  Fetch tasks
   const fetchTasks = async () => {
-    console.log("Fetching tasks...")
+
     const { data, error } = await supabase
       .from("user_tasks")
       .select("*")
@@ -22,17 +22,16 @@ export const useTasks = () => {
   }, [])
 
 
-  const addTask = async (task: string) => {
+  const addTask = async (task: string, column_id: string) => {
     const { data, error } = await supabase
       .from("user_tasks")
-      .insert([
-        { task }
-      ])
+      .insert([{ task, column_id }])
+      .select()
 
     if (error) {
       console.log("Error:", error)
-    } else {
-      console.log("Data inserted:", data)
+    } else if (data) {
+      setTasks((prev) => [...prev, data[0]])
     }
   }
   const deleteTask = async (id: string) => {
