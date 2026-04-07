@@ -3,18 +3,23 @@ import { useColumns } from "@/hooks/useColumns";
 import { useState } from "react"
 import { X } from "lucide-react";
 
-export default function ColumnInput({ onCancel }: { onCancel?: () => void }) {
-  const { addColumn } = useColumns();
+interface ColumnInputProps {
+  boardId: string | null
+  onCancel?: () => void
+}
+
+export default function ColumnInput({ boardId, onCancel }: ColumnInputProps) {
+  const { addColumn } = useColumns(boardId || undefined);
   const [title, setTitle] = useState("")
 
   const handleSubmit = async () => {
-    if (!title.trim()) return
+    if (!title.trim() || !boardId) return
 
     await addColumn(title.trim())
     setTitle("")
     if (onCancel) onCancel();
   }
-
+// ... (rest of the file remains same, but I'll replace the whole thing to be safe)
   return (
     <div className="flex flex-col gap-2 w-full animate-in fade-in slide-in-from-top-1 duration-200">
       <input

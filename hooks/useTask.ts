@@ -17,32 +17,56 @@ export const useTasks = () => {
     }
   }
 
+  // 📥 Fetch and Subscribe to Tasks
   useEffect(() => {
     fetchTasks()
-  }, [])
 
+    // Realtime subscription for user_tasks
+    const channel = supabase
+      .channel('realtime_tasks')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'user_tasks' 
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setTasks((prev) => [...prev, payload.new as Task])
+        } else if (payload.eventType === 'UPDATE') {
+          setTasks((prev) => prev.map(t => t.id === payload.new.id ? payload.new as Task : t))
+        } else if (payload.eventType === 'DELETE') {
+          setTasks((prev) => prev.filter(t => t.id !== payload.old.id))
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   const addTask = async (task: string, column_id: string) => {
     const { data, error } = await supabase
       .from("user_tasks")
-      .insert([{ task, column_id }])
+      .insert([{ 
+        task, 
+        column_id
+      }])
       .select()
 
     if (error) {
-      console.log("Error:", error)
-    } else if (data) {
-      setTasks((prev) => [...prev, data[0]])
+      console.error("Error adding task:", error)
     }
+    // Note: Local state update is handled by Realtime subscription
   }
+  
   const deleteTask = async (id: string) => {
     const { error } = await supabase
       .from("user_tasks")
       .delete()
       .eq("id", id)
 
-    if (!error) {
-      //  UI update
-      setTasks((prev) => prev.filter((t) => t.id !== id))
+    if (error) {
+      console.error("Error deleting task:", error)
     }
   }
 
@@ -53,13 +77,8 @@ export const useTasks = () => {
       .update({ is_completed: !currentStatus })
       .eq("id", id)
 
-    if (!error) {
-      //  UI update
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === id ? { ...t, is_completed: !currentStatus } : t
-        )
-      )
+    if (error) {
+      console.error("Error toggling task:", error)
     }
   }
 
